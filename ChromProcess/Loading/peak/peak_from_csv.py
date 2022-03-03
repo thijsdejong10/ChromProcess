@@ -48,7 +48,7 @@ def peak_boundaries_from_file(chromatogram, peak_file):
 
 
 
-def peak_from_csv(chromatogram, peak_file, look_ahead = 12):
+def peak_from_csv(chromatogram, peak_file):
     '''
     Get the peak retention times from a PeakCollections file rather than directly from a chromatogram.
     Peak boundaries will be generated. 

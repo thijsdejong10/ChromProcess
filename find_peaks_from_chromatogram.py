@@ -5,8 +5,8 @@ from ChromProcess.Loading import chrom_from_csv
 from ChromProcess.Loading import analysis_from_csv
 from ChromProcess.Loading import conditions_from_csv
 from ChromProcess.Loading.peak.peak_from_csv import peak_rt_from_file, peak_boundaries_from_file
-experiment_number = 'FRN141'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN141"
+experiment_number = 'FRN140'
+experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
 from ChromProcess.Utils import indices_from_boundary, peak_indices_to_times
 
@@ -34,7 +34,7 @@ fig, ax = plt.subplots()
 for c in chroms:
     ax.plot(c.time, c.signal, label = c.filename)
 
-#plt.show()
+plt.show()
 
 is_start = analysis.internal_standard_region[0]
 is_end = analysis.internal_standard_region[1]
