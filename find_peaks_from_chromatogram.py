@@ -5,6 +5,7 @@ from ChromProcess.Loading import chrom_from_csv
 from ChromProcess.Loading import analysis_from_csv
 from ChromProcess.Loading import conditions_from_csv
 from ChromProcess.Loading.peak.peak_from_csv import peak_rt_from_file, peak_boundaries_from_file
+from ChromProcess.Utils.signal_processing.deconvolution import deconvolute_peak
 experiment_number = 'FRN140'
 experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
@@ -45,33 +46,40 @@ threshold = analysis.peak_pick_threshold
 if type(threshold) == float:
     threshold = [threshold for r in analysis.regions]
 
-#for chrom in chroms:
-#    for reg,thres in zip(analysis.regions,threshold):
-#        inds = indices_from_boundary(chrom.time, reg[0], reg[1])
-#        time = chrom.time[inds]
-#        signal = chrom.signal[inds]
-#        picked_peaks = find_peaks_scipy(signal, 
-#                        threshold=thres, 
-#                        min_dist=1, 
-#                        max_inten = 1e100, 
-#                        prominence = 1000, 
-#                        wlen = 1001, 
-#                        look_ahead = 12
-#                        )
-#        
-#        
-#        peak_features = peak_indices_to_times(time,picked_peaks)
-#        add_peaks_to_chromatogram(peak_features, chrom)
-#        integrate_chromatogram_peaks(chrom)
-
 for chrom in chroms:
-    peaks_indices = peak_rt_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
-    peak_starts, peak_ends = peak_boundaries_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
-    picked_peaks = {'Peak_indices':peaks_indices, 'Peak_start_indices':peak_starts, 'Peak_end_indices':peak_ends}
-    
-    peak_features = peak_indices_to_times(chrom.time,picked_peaks)
-    add_peaks_to_chromatogram(peak_features, chrom)
+    for reg,thres in zip(analysis.regions,threshold):
+        inds = indices_from_boundary(chrom.time, reg[0], reg[1])
+        time = chrom.time[inds]
+        signal = chrom.signal[inds]
+        if region.deconvolve == 0:
+            picked_peaks = find_peaks_scipy(signal, 
+                            threshold=thres, 
+                            min_dist=1, 
+                            max_inten = 1e100, 
+                            prominence = 1000, 
+                            wlen = 1001, 
+                            look_ahead = 12
+                            )
+        else:
+            deconvolute_peak(
+                            chrom,
+                            [],
+                            experiment_folder,
+                            inds
+                            )
+        
+        peak_features = peak_indices_to_times(time,picked_peaks)
+        add_peaks_to_chromatogram(peak_features, chrom)
     integrate_chromatogram_peaks(chrom)
+
+#for chrom in chroms:
+#    peaks_indices = peak_rt_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
+#    peak_starts, peak_ends = peak_boundaries_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
+#    picked_peaks = {'Peak_indices':peaks_indices, 'Peak_start_indices':peak_starts, 'Peak_end_indices':peak_ends}
+#    
+#    peak_features = peak_indices_to_times(chrom.time,picked_peaks)
+#    add_peaks_to_chromatogram(peak_features, chrom)
+#    integrate_chromatogram_peaks(chrom)
 
 #print('test')
 for c,v in zip(chroms, conditions.series_values):
