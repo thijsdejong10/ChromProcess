@@ -94,7 +94,7 @@ def fit_gaussian_peaks(
     elif num_peaks == 2:
         popt, pcov = curve_fit(_2gaussian, time, signal, p0=initial_guess, bounds = boundaries)
     elif num_peaks == 3:
-        popt, pcov = curve_fit(_3gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+        popt, pcov = curve_fit(_3gaussian, time, signal, p0=initial_guess, bounds = boundaries)#,method='trf')
     else:
         print('Error: number of peaks to large')
         popt, pcov = [0,0,0],0
@@ -153,6 +153,7 @@ def deconvolute_peak(
                     lower_bounds = [0, 0,  0.0], 
                     upper_bounds = [1e10, 1,  0.035], 
                     num_peaks = 2,
+                    plotting = True,
                     ):
 
     '''
@@ -180,21 +181,21 @@ def deconvolute_peak(
     #
     boundaries = [lower_bounds,upper_bounds]
 
-    popt, pcov  =  fit_gaussian_peaks(time, smoothed_signal, initial_guess, boundaries, num_peaks)
+    popt, pcov  =  fit_gaussian_peaks(time, signal, initial_guess, boundaries, num_peaks)
     
+    if plotting==True:
+        fig, ax = plt.subplots(1,1)
+        ax.plot(time,signal)
+        final_curve = np.zeros(len(signal))
+        for p in range(0,num_peaks):
+            gauss = _1gaussian(time,popt[0+p*3],popt[1+p*3],popt[2+p*3])
+            final_curve += gauss
+            ax.plot(time,gauss)
+        ax.plot(time,final_curve)
+        fig.set_size_inches(18.5, 10.5)
+        plt.tight_layout()
 
-    fig, ax = plt.subplots(1,1)
-    ax.plot(time,smoothed_signal)
-    final_curve = np.zeros(len(signal))
-    for p in range(0,num_peaks):
-        gauss = _1gaussian(time,popt[0+p*3],popt[1+p*3],popt[2+p*3])
-        final_curve += gauss
-        ax.plot(time,gauss)
-    ax.plot(time,final_curve)
-    fig.set_size_inches(18.5, 10.5)
-    plt.tight_layout()
-
-    plt.savefig(f"{experiment_folder}\\deconvolve_peaks\\11.70\\{chromatogram.filename}.png")
-    plt.close()
+        plt.savefig(f"{experiment_folder}\\deconvolve_peaks\\11.70\\{chromatogram.filename}.png")
+        plt.close()
     
     return popt, pcov 
