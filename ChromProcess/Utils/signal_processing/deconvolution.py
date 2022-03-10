@@ -16,6 +16,7 @@ def _1gaussian(x, amplitude, centre, sigma):
         centretre of the function (mean)
     sigma1: float
         width of the function (standard deviation)
+
     Returns
     -------
     function: numpy array
@@ -26,6 +27,7 @@ def _1gaussian(x, amplitude, centre, sigma):
 def _2gaussian(x, amplitude1, centre1, sigma1, amplitude2, centre2, sigma2):
     '''
     A double gaussian function
+
     Parameters
     ----------
     x: array
@@ -36,6 +38,7 @@ def _2gaussian(x, amplitude1, centre1, sigma1, amplitude2, centre2, sigma2):
         centretre of a component gaussian function (mean)
     sigman: float
         width of a component gaussian function (standard deviation)
+
     Returns
     -------
     function: numpy array
@@ -53,7 +56,7 @@ def fit_gaussian_peaks(
                     boundaries,
                     num_peaks,
                     ):
-    '''
+    """
     TODO: This kind of function could be useful, but a better adapted function
         for peak deconvolution should be written. The function could take
         similar concepts to this one, but with a different concept for its
@@ -87,7 +90,7 @@ def fit_gaussian_peaks(
         list of fitted values [[amplitudelitude, centretre, width],]
     pcov: array
         correlation matrix
-    '''
+    """
 
     if num_peaks == 1:
         popt, pcov = curve_fit(_1gaussian, time, signal, p0=initial_guess, bounds = boundaries)
@@ -103,24 +106,33 @@ def fit_gaussian_peaks(
 
 def deconvolute_region(chromatogram, region, peak_diff, num_peaks = 1):
 
-    '''
+    """
     TODO: Combine the ideas in this function with fit_gaussian_peaks()
 
+    Parameters
+    ----------
     chromatogram: ChromProcess Chromatogram object
         Chromatogram
     region: list
         region of chromatogram under operation [lower bound, upper bound]
-    '''
+
+    Returns
+    -------
+    popt: ndarray
+        list of fitted values [[amplitude, centre, width],]
+    pcov: array
+        correlation matrix
+    """
 
     upper = region[1]
     lower = region[0]
 
-    inds = np.where((chromatogram.time > lower)&(chromatogram.time < upper))[0]
+    inds = np.where((chromatogram.time > lower) & (chromatogram.time < upper))[0]
 
     time = chromatogram.time[inds]
     signal = chromatogram.signal[inds]
 
-    signal = signal-np.average(signal[-5:-1])
+    signal = signal - np.average(signal[-5:-1])
 
     for p in range(0,len(peaks)): # extend the boundary
         initial_guess[0] = np.amax(signal)
@@ -155,16 +167,17 @@ def deconvolute_peak(
                     num_peaks = 2,
                     plotting = True,
                     ):
-
-    '''
+    """
     TODO: this function is quite similar in scope to deconvolute_region().
     Refactor with the other two deconvolution macros.
 
+    Parameters
+    ----------
     chromatogram: ChromProcess Chromatogram object
         Chromatogram
     region: list
         region of chromatogram under operation [lower bound, upper bound]
-    '''
+    """
     from ChromProcess.Utils.signal_processing import signal_processing as sig
     time = chromatogram.time[indices[0]:indices[-1]]
     signal = chromatogram.signal[indices[0]:indices[-1]]

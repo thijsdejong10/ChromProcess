@@ -2,7 +2,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'ChromProcess'
@@ -29,7 +28,7 @@ autoapi_dirs = ['../ChromProcess']
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = 'alabaster'
+html_theme = 'pyramid'
 
 html_static_path = ['_static']
 

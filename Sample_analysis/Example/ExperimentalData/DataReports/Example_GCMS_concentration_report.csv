@@ -7,21 +7,22 @@ CaCl2/ M,0.06,
 water/ M,0.0,
 end_conditions
 start_analysis_details
-Instrument, GCv Agilent/JEOL
-Chromatography_method,GCMS,Method 5
-Derivatisation_method,75 uL EtONH2.HCl; 30 mins @ 70 oC; 25 uL N;O-Bis(trimethylsilyl)trifluoroacetamide; 30 mins @ 70 oC; dilution to 200 uL with internal standard solution
+Instrument,GCv Agilent/JEOL
+Chromatography_type,GCMS
+Chromatography_method,Method 5
+Derivatisation_method,Reaction samples (35 μL) were flash-frozen in liquid nitrogen and freeze-dried overnight to give dry to oily residues. To each sample was added a solution of O-ethylhydroxylamine hydrochloride in pyridine (75 μL; 20 g L^−1^). A solution of dodecane and tetradecane (100 μL; 1.6 mM each in pyridine) was then added to each sample. The samples were then shaken at 70 °C for 30 minutes. After cooling to room temperature; N;O-bis(trimethylsilyl)trifluoroacetamide (25 μL) was added to each sample. The samples were again shaken at 70 °C for 30 minutes. The samples were then cooled to room temperature; followed by centrifugation (3-5 min; 10;000 rpm). The supernatants were decanted into sample vials for analysis by GC-MS. 
 Calibrations_file,2020_03_16_GCMS_Calibrations.csv
 Calibration_model,quadratic
 end_analysis_details
 start_data
 time/ s,compound_1/ M,compound_2/ M,compound_3/ M,
-30.0,8.792632137935235e-07,4.786380602293597e-07,9.440933931823984e-07,
-20.0,8.952454578685331e-07,4.544570762522185e-07,5.590251552027428e-07,
-10.0,8.854426696971814e-07,5.500486976157815e-07,1.5941458096535603e-07,
+10.0,8.853699926721883e-07,1.0650644113713682e-06,8.628005740402828e-07,
+20.0,8.952454578685331e-07,1.124970971987139e-06,1.0057971643356212e-06,
+30.0,8.788063648837121e-07,1.0683047793121114e-06,9.746580652846331e-07,
 end_data
 start_errors
 time/ s,compound_1/ M,compound_2/ M,compound_3/ M,
-30.0,1.0869891480522435e-08,5.91716301958546e-09,1.16713545732174e-08,
-20.0,1.106747197289974e-08,5.618225605168051e-09,6.910948481193907e-09,
-10.0,1.0946285004131406e-08,6.799977024275099e-09,1.9707627571842137e-09,
+10.0,1.0945386534409928e-08,1.3166858785578539e-08,1.0666372096572996e-08,
+20.0,1.106747197289974e-08,1.3907453641191006e-08,1.2434167444099117e-08,
+30.0,1.086424368587489e-08,1.3206917834245978e-08,1.2049210332081279e-08,
 end_errors
