@@ -195,7 +195,7 @@ def deconvolute_peak(
         fig.set_size_inches(18.5, 10.5)
         plt.tight_layout()
 
-        plt.savefig(f"{experiment_folder}\\deconvolve_peaks\\11.70\\{chromatogram.filename}.png")
+        plt.savefig(f"{experiment_folder}\\deconvolve_peaks\\11.25\\{chromatogram.filename}.png")
         plt.close()
     
     return popt, pcov 
