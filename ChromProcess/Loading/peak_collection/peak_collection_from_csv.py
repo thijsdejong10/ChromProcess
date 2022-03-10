@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from ChromProcess import Classes
 import sys
@@ -36,7 +37,8 @@ def peak_collection_from_csv(filename, round_digits=3):
     peaks = []
 
     IS_line_num = -1
-    IS = Classes.PeakCollectionElement(0.0, 1, 0.0, 0.0)
+
+    IS = Classes.Peak(0.0, 0.0, 0.0, integral=1.0)
 
     value = 0.0
     variable = ""
@@ -63,11 +65,11 @@ def peak_collection_from_csv(filename, round_digits=3):
                 else:
                     read = read_line(line)
 
-                    IS = Classes.PeakCollectionElement(
+                    IS = Classes.Peak(
                         round(read[0], round_digits),
-                        read[1],
                         round(read[2], round_digits),
                         round(read[3], round_digits),
+                        integral=read[1],
                         parent=parent_filename,
                     )
 
@@ -77,11 +79,11 @@ def peak_collection_from_csv(filename, round_digits=3):
             else:
                 rd = read_line(line)
                 peaks.append(
-                    Classes.PeakCollectionElement(
+                    Classes.Peak(
                         round(rd[0], round_digits),
-                        rd[1],
                         round(rd[2], round_digits),
                         round(rd[3], round_digits),
+                        integral=rd[1],
                         parent=parent_filename,
                     )
                 )
@@ -90,7 +92,6 @@ def peak_collection_from_csv(filename, round_digits=3):
     peak_collection.series_unit = variable
     peak_collection.internal_standard = IS
     peak_collection.peaks = peaks
-    peak_collection.assignment = "not specified"
     peak_collection.mass_spectra = []
     peak_collection.initial_IS_pos = IS.retention_time
 
