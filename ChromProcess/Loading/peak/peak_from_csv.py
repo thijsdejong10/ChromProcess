@@ -61,11 +61,7 @@ def peak_boundaries_from_file(chromatogram, peak_file):
 
 
 
-<<<<<<< HEAD
-def peak_from_csv(chromatogram, peak_file):
-=======
 def peak_from_csv(peak_file, chromatogram, look_ahead = 12):
->>>>>>> main
     '''
     Load sets of peak indices from a set of retention times stored in a
     PeakCollections file rather than directly from a chromatogram.

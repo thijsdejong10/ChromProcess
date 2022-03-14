@@ -60,4 +60,8 @@ def analysis_from_toml(fname):
     analysis.internal_standard_concentration = sample_info["Internal_standard_concentration"]
     analysis.internal_standard_concentration_error = sample_info["Internal_standard_concentration_error"]
 
+    if "Deconvolution_regions" in analysis_dict:
+        analysis.deconvolve_regions = analysis_dict["Deconvolution_regions"]
+
+
     return analysis

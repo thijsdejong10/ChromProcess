@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import norm
 import matplotlib.pyplot as plt
+import os
 def _1gaussian(x, amplitude, centre, sigma):
     '''
     A single gaussian function
@@ -159,12 +160,9 @@ def deconvolute_region(chromatogram, region, peak_diff, num_peaks = 1):
 
 def deconvolute_peak(
                     chromatogram, 
-                    initial_guess,
-                    experiment_folder,
+                    peak_folder,
                     indices,
-                    lower_bounds = [0, 0,  0.0], 
-                    upper_bounds = [1e10, 1,  0.035], 
-                    num_peaks = 2,
+                    info_dict,
                     plotting = True,
                     ):
     """
@@ -178,10 +176,9 @@ def deconvolute_peak(
     region: list
         region of chromatogram under operation [lower bound, upper bound]
     """
-    from ChromProcess.Utils.signal_processing import signal_processing as sig
+    from ChromProcess import Classes
     time = chromatogram.time[indices[0]:indices[-1]]
     signal = chromatogram.signal[indices[0]:indices[-1]]
-    smoothed_signal = sig.savitzky_golay(signal, 5, 3, deriv=0, rate=1)
     #lower_bounds = []
     #upper_bounds = []
     #for p in range(0,num_peaks): # extend the boundary
@@ -192,23 +189,60 @@ def deconvolute_peak(
     #    lower_bounds.extend(standard_lower_bounds)
     #    upper_bounds.extend(standard_upper_bounds)
     #
-    boundaries = [lower_bounds,upper_bounds]
+    if "lower_fit_boundaries" in info_dict:
+        boundaries = [info_dict["lower_fit_boundaries"],info_dict["upper_fit_boundaries"]]
+    else:
+        lower_bounds = [0,time[0],0]
+        upper_bounds = [1e7,time[-1],0.03]
+        boundaries = [
+        info_dict["number_of_peaks"]*lower_bounds,
+        info_dict["number_of_peaks"]*upper_bounds
+        ]
 
-    popt, pcov  =  fit_gaussian_peaks(time, signal, initial_guess, boundaries, num_peaks)
-    
-    if plotting==True:
-        fig, ax = plt.subplots(1,1)
-        ax.plot(time,signal)
-        final_curve = np.zeros(len(signal))
-        for p in range(0,num_peaks):
-            gauss = _1gaussian(time,popt[0+p*3],popt[1+p*3],popt[2+p*3])
-            final_curve += gauss
-            ax.plot(time,gauss)
+    if not "initial_guess" in info_dict:
+        info_dict["initial_guess"]=[]
+        for n in range(1,info_dict["number_of_peaks"]+1):
+            info_dict["initial_guess"].extend([
+                                    max(signal),
+                                    time[0] + ((time[-1]-time[0])/(info_dict["number_of_peaks"]+2))*n,
+                                    0.009
+                                    ])
+
+    popt, pcov  =  fit_gaussian_peaks(
+                                time, 
+                                signal, 
+                                info_dict["initial_guess"], 
+                                boundaries, 
+                                info_dict["number_of_peaks"])
+    peaks = []
+    fig, ax = plt.subplots(1,1)
+    ax.plot(time,signal)
+    final_curve = np.zeros(len(signal))
+    for p in range(0,info_dict["number_of_peaks"]):
+        amp = popt[0+p*3]
+        centre = popt[1+p*3]
+        sigma = popt[2+p*3]            
+        gauss = _1gaussian(time,amp,centre,sigma)
+        pk_idx = np.argmin(abs(time - centre))
+        start_idx = np.argmin(abs(time-centre + 3*sigma))
+        end_idx = np.argmin(abs(time-centre - 3*sigma))
+        integral = np.trapz(gauss, x=time)
+        retention_time = time[pk_idx]
+        start = time[start_idx]
+        end = time[end_idx]
+        peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[]))
+        final_curve += gauss
+        ax.plot(time,gauss)
+
+    if plotting==True:    
         ax.plot(time,final_curve)
         fig.set_size_inches(18.5, 10.5)
         plt.tight_layout()
-
-        plt.savefig(f"{experiment_folder}\\deconvolve_peaks\\11.25\\{chromatogram.filename}.png")
+        plt.savefig(f"{peak_folder}\\{chromatogram.filename}.png")
+        plt.close()
+    else:
         plt.close()
     
-    return popt, pcov 
+
+    mse = sum((signal-final_curve)**2)/len(signal)
+    return popt, pcov, mse, peaks

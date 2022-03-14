@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.signal import find_peaks
+import scipy.signal
 from ChromProcess.Utils.signal_processing import signal_processing as sig
 
 
@@ -35,7 +35,7 @@ def find_peak_boundaries_look_ahead(signal, peaks_indices, look_ahead=1):
 
     peak_starts = [] #list to which to add the 
     for n in range(0,len(peaks_indices)):
-        cursor = peaks_indices[n]-2 #initialize cursor
+        cursor = peaks_indices[n] #initialize cursor
         if cursor <= look_ahead:
             #ensure the function can't start out of bounds and if it is check if
             #there is a smaller value within the look ahead window
@@ -57,7 +57,7 @@ def find_peak_boundaries_look_ahead(signal, peaks_indices, look_ahead=1):
     peak_ends = []
 
     for n in range(0,len(peaks_indices)):
-        cursor = peaks_indices[n]+2
+        cursor = peaks_indices[n]
         if cursor + look_ahead >= len(signal):
             next_cursor = cursor + 1 + signal[cursor:-1].argmin()
         else:
@@ -175,14 +175,13 @@ def find_peaks_scipy(
     smooth_signal = sig.savitzky_golay(signal, 7, 3, deriv=0, rate=1)
 
     height_ = [max(smooth_signal) * threshold, max_inten]
-    peaks_indices, _ = find_peaks(
+    peaks_indices, _ = scipy.signal.find_peaks(
         smooth_signal,
         distance=min_dist,
         height=height_,
         prominence=prominence,
         wlen=wlen,
     )
-
     peak_starts, peak_ends = find_peak_boundaries_look_ahead(
         smooth_signal, peaks_indices, look_ahead=look_ahead
     )

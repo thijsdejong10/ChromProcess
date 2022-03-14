@@ -138,17 +138,9 @@ def peak_dict_to_spreadsheet(
     sorted_vals = sorted(series_values)
     peak_grid.append(sorted_vals)
 
-<<<<<<< HEAD
-    # writing data
-    #convert strings to floats for sorting and turn back to strings to be added as key
-    sorted_keys = [f'{x}' for x in sorted([float(x) for x in peak_dict.keys()])]
-    
-    for s in sorted_keys:
-=======
-    peak_names = [*peak_dict]
+    peak_names = [f' [{x}]' for x in sorted([float(x[2:-1]) for x in peak_dict.keys()])]
     for s in peak_names:
 
->>>>>>> 0196362918b3494decd19e807148098d41dbb598
         peak_header.append(s)
 
         if sort_series_order:

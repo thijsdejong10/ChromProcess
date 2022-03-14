@@ -32,8 +32,22 @@ series.reference_integrals_to_IS()
  # 5% of internal standard integral if integrals are normalised to IS
 #series.remove_peaks_below_threshold(peak_removal_limit)
 peak_agglomeration_boundary = 0.025 # distance cutoff 
+cluster_threshold = 0.008
 series.get_peak_clusters(bound = peak_agglomeration_boundary)
-cluster_removal_limit = 0.008
+to_remove = []
+for c1, clust in enumerate(series.clusters):
+    max_integral = 0
+    for pc in series.peak_collections:
+        for pk in pc.peaks:
+            if pk.retention_time in clust and pk.integral>max_integral:
+                max_integral = pk.integral
+    if max_integral < cluster_threshold:
+        to_remove.append(c1)
+[series.clusters.pop(c) for c in sorted(to_remove,reverse=True)]
+#        to_remove = []
+#        for k in integral_dict:
+#            if max(integral_dict[k]) < cluster_removal_limit:
+#                to_remove = to_remove + [k]
+#        [integral_dict.pop(key) for key in to_remove]
 
-
-series.write_data_reports(f'{data_report_directory}/{series.name}', analysis,cluster_removal_limit = cluster_removal_limit) # create arrays for output
+series.write_data_reports(f'{data_report_directory}/{series.name}', analysis) # create arrays for output

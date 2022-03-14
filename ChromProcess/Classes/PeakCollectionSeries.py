@@ -127,6 +127,7 @@ class PeakCollectionSeries:
 
         clusts = []
         for c in cluster(peaks, bound=bound):
+            
             clusts.append(c)
 
         self.clusters = clusts

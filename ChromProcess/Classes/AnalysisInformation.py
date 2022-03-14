@@ -49,6 +49,7 @@ class AnalysisInformation:
         self.dilution_factor_error = 0.0
         self.internal_standard_concentration = 0.0
         self.internal_standard_concentration_error = 0.0
+        self.deconvolve_regions = {}
 
     def write_to_file(self, directory=""):
         """

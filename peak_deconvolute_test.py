@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from ChromProcess.Loading import chrom_from_csv
 from ChromProcess.Loading import analysis_from_csv
 from ChromProcess.Loading import conditions_from_csv
-from ChromProcess.Loading.peak.peak_from_csv import peak_rt_from_file, peak_boundaries_from_file
+from ChromProcess.Loading.peak.peak_from_csv import peak_boundaries_from_file
 experiment_number = 'FRN140'
 experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
@@ -32,24 +32,33 @@ chromatogram_files.sort()
 chroms = []
 for f in chromatogram_files:
     chroms.append(chrom_from_csv(f'{chromatogram_directory}/{f}'))
-fit_values = np.array(['amp1','centre1','sigma1','amp2','centre2','sigma2'])#,'amp3','centre3','sigma3'])
+fit_values = np.array(['amp1','centre1','sigma1','amp2','centre2','sigma2','amp3','centre3','sigma3'])
 
-indices = range(4689,4762)#4820,4871)
+indices = range(4990,5120)
 fit_error = []
-initial_guess = [15304,11.245,0.001,15638,11.29,0.00869]#,17020,11.836,0.009]#[115638,11.45,0.00869]#
+initial_guess = [15304,11.77,0.001,15638,11.79,0.00869,17020,11.836,0.009]#[115638,11.45,0.00869]#
+peak_folder = f"{experiment_folder}\\deconvolved_peaks\\{11.70}"
+os.makedirs(peak_folder,exist_ok=True)
+
 for chrom in chroms:
     
-    lower_bounds = [0,11.22,0.0005,0,11.28,0.0005]#,10000,11.829,0]
-    upper_bounds = [1e7,11.26,0.22,50000,11.33,0.22]#,50000,11.88,0.2]
+    lower_bounds = [0,11.70,0.0005,0,11.77,0.0005,10000,11.829,0]
+    upper_bounds = [1e7,11.79,0.22,50000,11.81,0.22,50000,11.88,0.2]
     #smooth_signal = sig.savitzky_golay(signal, 7, 3, deriv=0, rate=1)
     #chrom.signal=smooth_signal
-    popt, pcov = deconvolute_peak(chrom,
-                                initial_guess,
-                                experiment_folder,
+    
+    info_dict = {
+        "lower_fit_boundaries": lower_bounds,
+        "upper_fit_boundaries": upper_bounds,
+        "number_of_peaks":3,
+        "initial_guess":initial_guess
+
+    }
+    popt, pcov, mse, peaks = deconvolute_peak(
+                                chrom,
+                                peak_folder,
                                 indices,
-                                lower_bounds,
-                                upper_bounds,
-                                num_peaks=2,
+                                info_dict,
                                 plotting = True)
     fit_values = np.vstack((fit_values,popt))
     final_curve = np.zeros(len(indices))
@@ -60,5 +69,5 @@ for chrom in chroms:
     initial_guess=popt
 
 
-pd.DataFrame(fit_values).to_csv(f'{experiment_folder}\\gaussian_fit_11.25.csv')
+pd.DataFrame(fit_values).to_csv(f'{peak_folder}\\gaussian_fit_{11.70}.csv')
 
