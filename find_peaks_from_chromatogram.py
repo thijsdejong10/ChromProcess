@@ -17,7 +17,7 @@ from ChromProcess.Processing import integrate_chromatogram_peaks
 from ChromProcess.Processing import internal_standard_integral
 import numpy as np
 from ChromProcess import Classes
-from Plotting.chromatograms_plotting import plot_peaks_and_boundaries 
+from Plotting.chromatograms_plotting import plot_peaks_and_boundaries, heatmap_cluster
 chromatogram_directory = f'{experiment_folder}\ChromatogramCSV'
 conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
 analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
@@ -33,10 +33,9 @@ chroms = []
 for f in chromatogram_files:
     chroms.append(chrom_from_csv(f'{chromatogram_directory}/{f}'))
 
-fig, ax = plt.subplots()
-for c in chroms:
-    ax.plot(c.time, c.signal, label = c.filename)
-
+#fig, ax = plt.subplots()
+#for c in chroms:
+#    ax.plot(c.time, c.signal, label = c.filename)
 #plt.show()
 
 is_start = analysis.internal_standard_region[0]
@@ -76,7 +75,7 @@ for chrom in chroms:
     integrate_chromatogram_peaks(chrom)
 
 
-
+heatmap_cluster(chroms)
 for reg in analysis.deconvolve_regions:
     indices = indices_from_boundary(
             chrom.time, 
@@ -93,7 +92,7 @@ for reg in analysis.deconvolve_regions:
                             peak_folder,
                             indices,
                             analysis.deconvolve_regions[reg],
-                            plotting = True)
+                            plotting = False)
         fit_values = np.vstack((fit_values,np.array([mse,*popt])))
         k = [*chrom.peaks.keys()]
         v = [*chrom.peaks.values()]
@@ -106,11 +105,7 @@ for reg in analysis.deconvolve_regions:
             insert = np.searchsorted(k,rt)
             k.insert(insert,rt)
             v.insert(insert,peak)
-        chrom.peaks = dict(zip(k,v))
-
-        
-        
-        
+        chrom.peaks = dict(zip(k,v))   
     pd.DataFrame(fit_values).to_csv(f'{peak_folder}\\gaussian_fit_{chrom.time[indices[0]]}.csv')
 #for chrom in chroms:
 #    peaks_indices = peak_indices_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
@@ -122,7 +117,9 @@ for reg in analysis.deconvolve_regions:
 #    integrate_chromatogram_peaks(chrom)
 
 #print('test')
-#plot_peaks_and_boundaries(chroms)
+
+
+heatmap_cluster(chroms)
 for c,v in zip(chroms, conditions.series_values):
     c.write_peak_collection(filename = f'{peak_collection_directory}/{c.filename}',
                         header_text = f"{conditions.series_unit},{v}\n",

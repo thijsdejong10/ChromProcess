@@ -232,7 +232,7 @@ def deconvolute_peak(
         end = time[end_idx]
         peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[]))
         final_curve += gauss
-        ax.plot(time,gauss)
+        #ax.plot(time,gauss)
 
     if plotting==True:    
         ax.plot(time,final_curve)
