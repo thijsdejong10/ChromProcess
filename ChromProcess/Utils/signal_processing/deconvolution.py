@@ -3,7 +3,7 @@ from scipy.optimize import curve_fit
 from scipy.stats import norm
 import matplotlib.pyplot as plt
 import os
-def _1gaussian(x, amplitude, centre, sigma):
+def _1gaussian(x, amplitude, centre, sigma, baseline=0):
     '''
     A single gaussian function
 
@@ -23,9 +23,9 @@ def _1gaussian(x, amplitude, centre, sigma):
     function: numpy array
         y values for the function
     '''
-    return amplitude*(1/(sigma*(np.sqrt(2*np.pi))))*(np.exp(-((x-centre)**2)/((2*sigma)**2)))
+    return amplitude*(1/(sigma*(np.sqrt(2*np.pi))))*(np.exp(-((x-centre)**2)/((2*sigma)**2))) + baseline
 
-def _2gaussian(x, amplitude1, centre1, sigma1, amplitude2, centre2, sigma2):
+def _2gaussian(x, amplitude1, centre1, sigma1, amplitude2, centre2, sigma2, baseline=0):
     '''
     A double gaussian function
 
@@ -45,10 +45,25 @@ def _2gaussian(x, amplitude1, centre1, sigma1, amplitude2, centre2, sigma2):
     function: numpy array
         y values for the function
     '''
-    return _1gaussian(x, amplitude1, centre1, sigma1) + _1gaussian(x, amplitude2, centre2, sigma2)
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _1gaussian(x, amplitude2, centre2, sigma2)
 
-def _3gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3):
-    return _1gaussian(x, amplitude1, centre1, sigma1) + _2gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3)
+def _3gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _2gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3)
+
+def _4gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _3gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3, amplitude4, centre4, sigma4)
+
+def _5gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _4gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5)
+
+def _6gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _5gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, baseline=0)
+
+def _7gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _6gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7)
+
+def _8gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _7gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8)
 
 def fit_gaussian_peaks(
                     time, 
@@ -99,6 +114,16 @@ def fit_gaussian_peaks(
         popt, pcov = curve_fit(_2gaussian, time, signal, p0=initial_guess, bounds = boundaries)
     elif num_peaks == 3:
         popt, pcov = curve_fit(_3gaussian, time, signal, p0=initial_guess, bounds = boundaries)#,method='trf')
+    elif num_peaks == 4:
+        popt, pcov = curve_fit(_4gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 5:
+        popt, pcov = curve_fit(_5gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 6:
+        popt, pcov = curve_fit(_6gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 7:
+        popt, pcov = curve_fit(_7gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 8:
+        popt, pcov = curve_fit(_8gaussian, time, signal, p0=initial_guess, bounds = boundaries)
     else:
         print('Error: number of peaks to large')
         popt, pcov = [0,0,0],0
@@ -179,6 +204,8 @@ def deconvolute_peak(
     from ChromProcess import Classes
     time = chromatogram.time[indices[0]:indices[-1]]
     signal = chromatogram.signal[indices[0]:indices[-1]]
+    #baseline = np.interp(time, [time[0], time[-1]], [min(signal), min(signal)])
+    signal = signal# - baseline
     #lower_bounds = []
     #upper_bounds = []
     #for p in range(0,num_peaks): # extend the boundary
@@ -190,7 +217,7 @@ def deconvolute_peak(
     #    upper_bounds.extend(standard_upper_bounds)
     #
     if "lower_fit_boundaries" in info_dict:
-        boundaries = [info_dict["lower_fit_boundaries"],info_dict["upper_fit_boundaries"]]
+        boundaries = [[*info_dict["lower_fit_boundaries"],0],[*info_dict["upper_fit_boundaries"],min(signal)]]
     else:
         lower_bounds = [0,time[0],0]
         upper_bounds = [1e7,time[-1],0.03]
@@ -211,31 +238,34 @@ def deconvolute_peak(
     popt, pcov  =  fit_gaussian_peaks(
                                 time, 
                                 signal, 
-                                info_dict["initial_guess"], 
+                                [*info_dict["initial_guess"],0], 
                                 boundaries, 
                                 info_dict["number_of_peaks"])
     peaks = []
+    baseline = np.ones(len(signal))*popt[-1]
     fig, ax = plt.subplots(1,1)
     ax.plot(time,signal)
     final_curve = np.zeros(len(signal))
+    
+    ax.plot(time,baseline)
     for p in range(0,info_dict["number_of_peaks"]):
         amp = popt[0+p*3]
         centre = popt[1+p*3]
         sigma = popt[2+p*3]            
         gauss = _1gaussian(time,amp,centre,sigma)
         pk_idx = np.argmin(abs(time - centre))
-        start_idx = np.argmin(abs(time-centre + 3*sigma))
-        end_idx = np.argmin(abs(time-centre - 3*sigma))
+        start_idx = np.argmin(abs(time - centre + 3*sigma))
+        end_idx = np.argmin(abs(time - centre - 3*sigma))
         integral = np.trapz(gauss, x=time)
         retention_time = time[pk_idx]
         start = time[start_idx]
         end = time[end_idx]
         peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[]))
         final_curve += gauss
-        #ax.plot(time,gauss)
+        ax.plot(time,gauss+baseline)
 
     if plotting==True:    
-        ax.plot(time,final_curve)
+        ax.plot(time,final_curve+baseline)
         fig.set_size_inches(18.5, 10.5)
         plt.tight_layout()
         plt.savefig(f"{peak_folder}\\{chromatogram.filename}.png")
