@@ -2,6 +2,7 @@ import numpy as np
 
 from ChromProcess.Processing.peak import assign_peak
 from ChromProcess.Utils.utils.clustering import cluster
+from ChromProcess.Writers import peak_collection_series_to_data_report
 
 
 class PeakCollectionSeries:
@@ -207,6 +208,21 @@ class PeakCollectionSeries:
         for pc in self.peak_collections:
             pc.reference_integrals_to_IS()
 
+    def reference_heights_to_IS(self):
+        """
+        Divide all peak integrals by the integral of the internal standard.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        None
+        """
+
+        for pc in self.peak_collections:
+            pc.reference_heights_to_IS()
+
     def apply_calibrations(self, conditions, calibrations):
         """
         Apply calibrations to peaks in the series.
@@ -338,6 +354,7 @@ class PeakCollectionSeries:
         conc_dict = {}
         err_dict = {}
         integral_dict = {}
+        height_dict = {}
 
         if len(self.cluster_assignments) == 0:
             cluster_names = ["" for _ in self.clusters]
@@ -348,7 +365,7 @@ class PeakCollectionSeries:
 
             for c2, clust in enumerate(self.clusters):
                 name = cluster_names[c2]
-                average_position = sum(clust) / len(clust)
+                average_position = round(sum(clust) / len(clust), 3)
 
                 for pk in pc.peaks:
                     if pk.retention_time in clust:
@@ -357,6 +374,12 @@ class PeakCollectionSeries:
                             if token not in integral_dict:
                                 integral_dict[token] = [0.0 for _ in self.series_values]
                             integral_dict[token][c1] += pk.integral
+
+                        if pk.height:
+                            token = name + f" [{average_position}]"
+                            if token not in height_dict:
+                                height_dict[token] = [0.0 for _ in self.series_values]
+                            height_dict[token][c1] += pk.height
 
                         if pk.concentration:
                             token = name + "/ M"
@@ -370,7 +393,7 @@ class PeakCollectionSeries:
                                 err_dict[token] = [0.0 for _ in self.series_values]
                             err_dict[token][c1] += pk.conc_error
 
-        return conc_dict, err_dict, integral_dict
+        return conc_dict, err_dict, integral_dict, height_dict
 
     def write_data_reports(self, filename, information):
         """
@@ -385,6 +408,5 @@ class PeakCollectionSeries:
         -------
         None
         """
-        import ChromProcess.Writers as write
 
-        write.peak_collection_series_to_data_report(self, filename, information)
+        peak_collection_series_to_data_report(self, filename, information)
