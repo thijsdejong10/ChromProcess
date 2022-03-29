@@ -2,6 +2,10 @@ import numpy as np
 
 from ChromProcess import Classes
 
+from ChromProcess.Writers import chromatogram_to_csv
+from ChromProcess.Writers import chromatogram_to_json
+from ChromProcess.Writers import chromatogram_to_peak_collection
+
 
 class Chromatogram:
     """
@@ -136,9 +140,23 @@ class Chromatogram:
         None
         """
 
-        import ChromProcess.Writers as write_chrom
+        chromatogram_to_csv(self, filename=filename)
 
-        write_chrom.chromatogram_to_csv(self, filename=filename)
+    def write_to_json(self, filename=""):
+        """
+        Write to csv.
+
+        Parameters
+        ----------
+        filename: str
+            Name for the output file
+
+        Returns
+        -------
+        None
+        """
+
+        chromatogram_to_json(self, filename=filename)
 
     def write_peak_collection(self, filename="", header_text=""):
         """
@@ -157,8 +175,6 @@ class Chromatogram:
         None
         """
 
-        import ChromProcess.Writers as write_chrom
-
-        write_chrom.chromatogram_to_peak_collection(
+        chromatogram_to_peak_collection(
             self, filename=filename, header_text=header_text
         )

@@ -4,8 +4,8 @@ from ChromProcess.Loading import peak_collection_from_csv
 from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
 
-experiment_number = 'FRN142'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN142"
+experiment_number = 'FRN140'
+experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
 peak_collection_directory = f'{experiment_folder}\PeakCollections'
 conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
 analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
@@ -17,21 +17,20 @@ analysis = analysis_from_toml(analysis_file)
 
 peak_tables = []
 for file in os.listdir(peak_collection_directory):
-    if file.endswith('.CSV'):
+    if file.endswith('.csv'):
         peak_tables.append(peak_collection_from_csv(f'{peak_collection_directory}/{file}',round_digits=7))
 
 # Create series of peak collections
 series = Classes.PeakCollectionSeries(
-                                    peak_tables, 
-                                    name = f'{experiment_number}',
+                                    peak_tables, name = f'{experiment_number}',
                                     conditions = conditions.conditions
                                     )
-IS_pos = 7.08
+IS_pos = 7.43
 #series.align_peaks_to_IS(IS_pos)
 series.reference_integrals_to_IS()
  # 5% of internal standard integral if integrals are normalised to IS
 #series.remove_peaks_below_threshold(peak_removal_limit)
-peak_agglomeration_boundary = 0.025 # distance cutoff 
+peak_agglomeration_boundary = 0.02 # distance cutoff 
 cluster_threshold = 0.008
 series.get_peak_clusters(bound = peak_agglomeration_boundary)
 to_remove = []

@@ -19,16 +19,16 @@ def heatmap_cluster(chroms):
         peak_pos = np.hstack((peak_pos, np.array([*chrom.peaks.keys()])))
     peaks = peak_pos[np.argsort(peak_pos)]
     clusters = []
-    for c in cluster(peaks, bound=0.025):
+    for c in cluster(peaks, bound=0.02):
         clusters.append(c)
 
     z = []
     for count, chrom in enumerate(chroms):
-        z.append(chrom.signal[9300:74900])
+        z.append(chrom.signal[0:11200])
     
     z = np.array(z)
     fig, ax = plt.subplots()
-    extent = [chroms[0].time[9300], chroms[0].time[74900], 0, len(chroms)]
+    extent = [chroms[0].time[0], chroms[0].time[11200], 0, len(chroms)]
     plt.imshow(z,extent=extent,aspect=0.01)
     for c1, clust in enumerate(clusters):
         chrom_plot = []

@@ -217,7 +217,7 @@ def deconvolute_peak(
     #    upper_bounds.extend(standard_upper_bounds)
     #
     if "lower_fit_boundaries" in info_dict:
-        boundaries = [[*info_dict["lower_fit_boundaries"],0],[*info_dict["upper_fit_boundaries"],min(signal)]]
+        boundaries = [[*info_dict["lower_fit_boundaries"],0],[*info_dict["upper_fit_boundaries"],min(signal)+0.001]]
     else:
         lower_bounds = [0,time[0],0]
         upper_bounds = [1e7,time[-1],0.03]
@@ -260,7 +260,7 @@ def deconvolute_peak(
         retention_time = time[pk_idx]
         start = time[start_idx]
         end = time[end_idx]
-        peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[]))
+        peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[],height= signal[pk_idx]))
         final_curve += gauss
         ax.plot(time,gauss+baseline)
 

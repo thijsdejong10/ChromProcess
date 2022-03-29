@@ -41,7 +41,7 @@ def find_peak_boundaries_look_ahead(signal, peaks_indices, look_ahead=1):
             #there is a smaller value within the look ahead window
             cursor = signal[0:cursor].argmin() 
         else:
-            next_cursor = cursor - look_ahead - 1 + signal[cursor-look_ahead:cursor].argmin()
+            next_cursor = cursor - look_ahead + signal[cursor-look_ahead:cursor].argmin()
             while signal[cursor] > signal[next_cursor]: 
                 cursor = next_cursor
                 if cursor <= look_ahead: #check if the function will run out of bounds
@@ -51,7 +51,7 @@ def find_peak_boundaries_look_ahead(signal, peaks_indices, look_ahead=1):
                     if signal[cursor] > signal[next_cursor]:
                         cursor = next_cursor
                     break
-                next_cursor = cursor - look_ahead - 1 + signal[cursor-look_ahead:cursor].argmin() #calculate next minimum
+                next_cursor = cursor - look_ahead  + signal[cursor-look_ahead:cursor].argmin() #calculate next minimum
         peak_starts.append(cursor)
     
     peak_ends = []
