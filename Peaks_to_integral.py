@@ -4,12 +4,12 @@ from ChromProcess.Loading import peak_collection_from_csv
 from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
 
-experiment_number = 'FRN140'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
-peak_collection_directory = f'{experiment_folder}\PeakCollections'
-conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
-analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
-data_report_directory = f'{experiment_folder}\DataReports'
+experiment_number = 'FRN143'
+experiment_folder = f"C:/users/thijs/Documents/PhD/Data/{experiment_number}"
+peak_collection_directory = f'{experiment_folder}/PeakCollections'
+conditions_file = f'{experiment_folder}/{experiment_number}_conditions.csv'
+analysis_file = f'{experiment_folder}/{experiment_number}_analysis_details.toml'
+data_report_directory = f'{experiment_folder}/DataReports'
 os.makedirs(data_report_directory, exist_ok=True)
 
 conditions = conditions_from_csv(conditions_file)
@@ -17,7 +17,7 @@ analysis = analysis_from_toml(analysis_file)
 
 peak_tables = []
 for file in os.listdir(peak_collection_directory):
-    if file.endswith('.csv'):
+    if file.endswith('.CSV'):
         peak_tables.append(peak_collection_from_csv(f'{peak_collection_directory}/{file}',round_digits=7))
 
 # Create series of peak collections
@@ -25,7 +25,7 @@ series = Classes.PeakCollectionSeries(
                                     peak_tables, name = f'{experiment_number}',
                                     conditions = conditions.conditions
                                     )
-IS_pos = 7.43
+# IS_pos = 7.43
 #series.align_peaks_to_IS(IS_pos)
 series.reference_integrals_to_IS()
  # 5% of internal standard integral if integrals are normalised to IS

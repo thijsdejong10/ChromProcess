@@ -260,7 +260,7 @@ def deconvolute_peak(
         retention_time = time[pk_idx]
         start = time[start_idx]
         end = time[end_idx]
-        peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[],height= signal[pk_idx]))
+        peaks.append(Classes.Peak(retention_time, start, end, integral=integral, indices=[],height= max(gauss)))
         final_curve += gauss
         ax.plot(time,gauss+baseline)
 

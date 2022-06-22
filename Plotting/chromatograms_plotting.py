@@ -12,7 +12,7 @@ def plot_peaks_and_boundaries(chroms):
     ax.plot_wireframe(X,Y,z)
     plt.show()
 
-def heatmap_cluster(chroms):
+def heatmap_cluster(chroms,plot_bounds):
     from ChromProcess.Utils.utils.clustering import cluster
     peak_pos = np.array([])
     for chrom in chroms:
@@ -24,11 +24,11 @@ def heatmap_cluster(chroms):
 
     z = []
     for count, chrom in enumerate(chroms):
-        z.append(chrom.signal[0:11200])
+        z.append(chrom.signal[plot_bounds[0]:plot_bounds[1]])
     
     z = np.array(z)
     fig, ax = plt.subplots()
-    extent = [chroms[0].time[0], chroms[0].time[11200], 0, len(chroms)]
+    extent = [chroms[0].time[plot_bounds[0]], chroms[0].time[plot_bounds[1]], 0, len(chroms)]
     plt.imshow(z,extent=extent,aspect=0.01)
     for c1, clust in enumerate(clusters):
         chrom_plot = []

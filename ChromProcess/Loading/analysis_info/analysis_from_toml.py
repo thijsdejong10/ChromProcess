@@ -67,5 +67,16 @@ def analysis_from_toml(fname):
     if "Deconvolution_regions" in analysis_dict:
         analysis.deconvolve_regions = analysis_dict["Deconvolution_regions"]
 
+    if "Plot_region" in analysis_dict:
+        analysis.plot_region= analysis_dict["Plot_region"]
+
+    if "Prominence" in peak_picking_options:
+        analysis.prominence = peak_picking_options["Prominence"]
+
+    if "Peak_distance" in peak_picking_options:
+        analysis.peak_distance = peak_picking_options["Peak_distance"]
+
+    if "Boundary_window" in peak_picking_options:
+        analysis.boundary_window = peak_picking_options["Boundary_window"]
 
     return analysis

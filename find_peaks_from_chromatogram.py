@@ -1,14 +1,14 @@
 #from pathlib import Path
 import os
 import matplotlib.pyplot as plt
-from ChromProcess.Loading import chrom_from_csv
+from ChromProcess.Loading import chrom_from_csv, experiment_conditions
 from ChromProcess.Loading import analysis_from_csv
 from ChromProcess.Loading import conditions_from_csv
 from ChromProcess.Loading.analysis_info.analysis_from_toml import analysis_from_toml
 from ChromProcess.Loading.peak.peak_from_csv import peak_indices_from_file, peak_boundaries_from_file
 from ChromProcess.Utils.signal_processing.deconvolution import deconvolute_peak
-experiment_number = 'FRN140'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN140"
+experiment_number = 'FRN146'
+experiment_folder = f"C:/Users/thijs/Documents/PhD/Data/{experiment_number}"
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
 from ChromProcess.Utils import indices_from_boundary, peak_indices_to_times
 import pandas as pd
@@ -18,10 +18,11 @@ from ChromProcess.Processing import internal_standard_integral
 import numpy as np
 from ChromProcess import Classes
 from Plotting.chromatograms_plotting import plot_peaks_and_boundaries, heatmap_cluster, peak_area
-chromatogram_directory = f'{experiment_folder}\ChromatogramCSV'
-conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
-analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
-peak_collection_directory = f'{experiment_folder}\PeakCollections'
+
+chromatogram_directory = f'{experiment_folder}/ChromatogramCSV'
+conditions_file = f'{experiment_folder}/{experiment_number}_conditions.csv'
+analysis_file = f'{experiment_folder}/{experiment_number}_analysis_details.toml'
+peak_collection_directory = f'{experiment_folder}/PeakCollections'
 
 conditions = conditions_from_csv(conditions_file)
 analysis = analysis_from_toml(analysis_file)
@@ -40,7 +41,9 @@ for f in chromatogram_files:
 
 fig, ax = plt.subplots()
 for c in chroms:
-    ax.plot(c.time[:], c.signal[:], label = c.filename)
+    ax.plot(c.time[analysis.plot_region[0]:analysis.plot_region[1]], 
+            c.signal[analysis.plot_region[0]:analysis.plot_region[1]],
+            label = c.filename)
 plt.show()
 
 is_start = analysis.internal_standard_region[0]
@@ -60,12 +63,12 @@ for chrom in chroms:
         signal = chrom.signal[inds]
         picked_peaks = find_peaks_scipy(signal, 
                         threshold=thres, 
-                        min_dist=1, 
+                        min_dist=analysis.peak_distance, 
                         max_inten = 1e100, 
-                        prominence = 2000, 
+                        prominence = analysis.prominence, 
                         wlen = 1001, 
-                        look_ahead = 10,
-                        smooth_window=7)
+                        look_ahead = analysis.boundary_window,
+                        smooth_window=41)
         peak_features = peak_indices_to_times(time,picked_peaks)
         peaks = []
         for x in range(0, len(picked_peaks["Peak_indices"])):
@@ -97,11 +100,14 @@ for reg in analysis.deconvolve_regions:
         fit_values = np.hstack((fit_values, [f'amp{n}',f'centre{n}',f'sigma{n}']))
     fit_values = np.hstack((fit_values,'baseline'))
     for chrom in chroms:
-        popt, pcov, mse, peaks = deconvolute_peak(chrom,
-                            peak_folder,
-                            indices,
-                            analysis.deconvolve_regions[reg],
-                            plotting = False)
+        try: #the fit can often crash because of boundaries that do not match, this is costly as it means all the code has to be run again and we don't convolute all regions, try except here makes this easier.
+            popt, pcov, mse, peaks = deconvolute_peak(chrom,
+                                peak_folder,
+                                indices,
+                                analysis.deconvolve_regions[reg],
+                                plotting = True)
+        except:
+            print(f"error in fitting {reg}")
         fit_values = np.vstack((fit_values,np.array([mse,*popt])))
         k = [*chrom.peaks.keys()]
         v = [*chrom.peaks.values()]
@@ -115,6 +121,7 @@ for reg in analysis.deconvolve_regions:
             k.insert(insert,rt)
             v.insert(insert,peak)
         chrom.peaks = dict(zip(k,v))   
+        
     pd.DataFrame(fit_values).to_csv(f'{peak_folder}\\gaussian_fit_{region_start}.csv')
 #for chrom in chroms:
 #    peaks_indices = peak_indices_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
@@ -128,7 +135,7 @@ for reg in analysis.deconvolve_regions:
 #print('test')
 
 
-heatmap_cluster(chroms)
+heatmap_cluster(chroms,analysis.plot_region)
 for c,v in zip(chroms, conditions.series_values):
     c.write_peak_collection(filename = f'{peak_collection_directory}/{c.filename}',
                         header_text = f"{conditions.series_unit},{v}\n",
