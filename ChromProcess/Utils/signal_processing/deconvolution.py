@@ -65,6 +65,12 @@ def _7gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, ampli
 def _8gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, baseline=0):
     return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _7gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8)
 
+def _9gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, amplitude9, centre9, sigma9, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _8gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, amplitude9, centre9, sigma9)
+
+def _10gaussian(x, amplitude1, centre1, sigma1,amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, amplitude9, centre9, sigma9,amplitude10, centre10, sigma10, baseline=0):
+    return _1gaussian(x, amplitude1, centre1, sigma1, baseline) + _9gaussian(x, amplitude2, centre2, sigma2, amplitude3, centre3, sigma3,amplitude4, centre4, sigma4, amplitude5, centre5, sigma5, amplitude6, centre6, sigma6, amplitude7, centre7, sigma7, amplitude8, centre8, sigma8, amplitude9, centre9, sigma9,amplitude10, centre10, sigma10)
+
 def fit_gaussian_peaks(
                     time, 
                     signal,
@@ -124,6 +130,10 @@ def fit_gaussian_peaks(
         popt, pcov = curve_fit(_7gaussian, time, signal, p0=initial_guess, bounds = boundaries)
     elif num_peaks == 8:
         popt, pcov = curve_fit(_8gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 9:
+        popt, pcov = curve_fit(_9gaussian, time, signal, p0=initial_guess, bounds = boundaries)
+    elif num_peaks == 10:
+        popt, pcov = curve_fit(_10gaussian, time, signal, p0=initial_guess, bounds = boundaries)
     else:
         print('Error: number of peaks to large')
         popt, pcov = [0,0,0],0

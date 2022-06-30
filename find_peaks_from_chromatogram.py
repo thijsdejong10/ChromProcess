@@ -14,7 +14,7 @@ from ChromProcess.Utils import indices_from_boundary, peak_indices_to_times
 import pandas as pd
 from ChromProcess.Processing import add_peaks_to_chromatogram
 from ChromProcess.Processing import integrate_chromatogram_peaks
-from ChromProcess.Processing import internal_standard_integral
+from ChromProcess.Processing import internal_standard_integral_look_ahead
 import numpy as np
 from ChromProcess import Classes
 from Plotting.chromatograms_plotting import plot_peaks_and_boundaries, heatmap_cluster, peak_area
@@ -39,17 +39,27 @@ for f in chromatogram_files:
 #    chrom.signal -= blank.signal
 
 
+# fig, ax = plt.subplots()
+# for c in chroms:
+#     ax.plot(c.time[analysis.plot_region[0]:analysis.plot_region[1]], 
+#             c.signal[analysis.plot_region[0]:analysis.plot_region[1]],
+#             label = c.filename)
+# plt.show()
+is_start = analysis.internal_standard_region[0]
+is_end = analysis.internal_standard_region[1]
+for c in chroms:
+    c.signal = c.signal - min(c.signal[analysis.plot_region[0]:analysis.plot_region[1]])
+    internal_standard_integral_look_ahead(c, is_start, is_end)
+    c.signal = c.signal/c.internal_standard.integral
+    # internal_standard_integral_look_ahead(c, is_start, is_end)
+    # print(c.internal_standard.integral)
+
 fig, ax = plt.subplots()
 for c in chroms:
     ax.plot(c.time[analysis.plot_region[0]:analysis.plot_region[1]], 
             c.signal[analysis.plot_region[0]:analysis.plot_region[1]],
             label = c.filename)
 plt.show()
-
-is_start = analysis.internal_standard_region[0]
-is_end = analysis.internal_standard_region[1]
-for c in chroms:
-    internal_standard_integral(c, is_start, is_end)
 
 threshold = analysis.peak_pick_threshold
 if type(threshold) == float:
@@ -79,8 +89,9 @@ for chrom in chroms:
             retention_time = time[pk_idx]
             start = time[start_idx]
             end = time[end_idx]
-            peaks.append(Classes.Peak(retention_time, start, end, indices=[], height= signal[pk_idx]))
-        peak_area(time,signal,picked_peaks,save_folder=f"{peak_figure_folder}\\{chrom.filename[:-4]}_region_{reg[0]}.png")
+            height = signal[pk_idx] - min(signal) #subtract the baseline of the region from the peak height
+            peaks.append(Classes.Peak(retention_time, start, end, indices=[], height=height ))
+        peak_area(time,signal,picked_peaks,save_folder=f"{peak_figure_folder}\\{reg[0]}_{chrom.filename[:-4]}.png")
         add_peaks_to_chromatogram(peaks, chrom)
     integrate_chromatogram_peaks(chrom,baseline_subtract=True)
 

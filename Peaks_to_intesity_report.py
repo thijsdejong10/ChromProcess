@@ -5,8 +5,8 @@ from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
 import numpy as np
 from ChromProcess.Loading import chrom_from_csv
-experiment_number = 'FRN142'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN142"
+experiment_number = 'FRN146'
+experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN146"
 peak_collection_directory = f'{experiment_folder}\PeakCollections'
 conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
 analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
