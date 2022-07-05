@@ -5,8 +5,8 @@ from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
 import numpy as np
 from ChromProcess.Loading import chrom_from_csv
-experiment_number = 'FRN146'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\FRN146"
+experiment_number = 'CC01'
+experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\CC01"
 peak_collection_directory = f'{experiment_folder}\PeakCollections'
 conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
 analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
@@ -25,7 +25,7 @@ for f in chromatogram_files:
 
 peak_tables = []
 for file in os.listdir(peak_collection_directory):
-    if file.endswith('.CSV'):
+    if file.endswith('.csv') or file.endswith('.CSV'):
         peak_tables.append(peak_collection_from_csv(f'{peak_collection_directory}/{file}',round_digits=7))
 
 

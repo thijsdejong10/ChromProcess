@@ -7,7 +7,7 @@ from ChromProcess.Loading import conditions_from_csv
 from ChromProcess.Loading.analysis_info.analysis_from_toml import analysis_from_toml
 from ChromProcess.Loading.peak.peak_from_csv import peak_indices_from_file, peak_boundaries_from_file
 from ChromProcess.Utils.signal_processing.deconvolution import deconvolute_peak
-experiment_number = 'FRN146'
+experiment_number = 'CC09'
 experiment_folder = f"C:/Users/thijs/Documents/PhD/Data/{experiment_number}"
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
 from ChromProcess.Utils import indices_from_boundary, peak_indices_to_times
@@ -33,10 +33,12 @@ chromatogram_files.sort()
 chroms = []
 for f in chromatogram_files:
     chroms.append(chrom_from_csv(f'{chromatogram_directory}/{f}'))
-#blank = chrom_from_csv(f'{experiment_folder}\\control_injections\\FRN142_blank_2.dx_FID1A.CSV')
-#subtract baseline
-#for chrom in chroms:
-#    chrom.signal -= blank.signal
+
+
+blank = chrom_from_csv(f'{experiment_folder}\\blank_CC.csv')
+# subtract baseline
+for chrom in chroms:
+   chrom.signal -= blank.signal
 
 
 # fig, ax = plt.subplots()
@@ -45,12 +47,12 @@ for f in chromatogram_files:
 #             c.signal[analysis.plot_region[0]:analysis.plot_region[1]],
 #             label = c.filename)
 # plt.show()
-is_start = analysis.internal_standard_region[0]
-is_end = analysis.internal_standard_region[1]
+# is_start = analysis.internal_standard_region[0]
+# is_end = analysis.internal_standard_region[1]
 for c in chroms:
     c.signal = c.signal - min(c.signal[analysis.plot_region[0]:analysis.plot_region[1]])
-    internal_standard_integral_look_ahead(c, is_start, is_end)
-    c.signal = c.signal/c.internal_standard.integral
+    # c.signal = c.signal/c.internal_standard.integral
+    # internal_standard_integral_look_ahead(c, is_start, is_end)
     # internal_standard_integral_look_ahead(c, is_start, is_end)
     # print(c.internal_standard.integral)
 
@@ -78,7 +80,7 @@ for chrom in chroms:
                         prominence = analysis.prominence, 
                         wlen = 1001, 
                         look_ahead = analysis.boundary_window,
-                        smooth_window=41)
+                        smooth_window=11)
         peak_features = peak_indices_to_times(time,picked_peaks)
         peaks = []
         for x in range(0, len(picked_peaks["Peak_indices"])):
@@ -146,7 +148,7 @@ for reg in analysis.deconvolve_regions:
 #print('test')
 
 
-heatmap_cluster(chroms,analysis.plot_region)
+# heatmap_cluster(chroms,analysis.plot_region)
 for c,v in zip(chroms, conditions.series_values):
     c.write_peak_collection(filename = f'{peak_collection_directory}/{c.filename}',
                         header_text = f"{conditions.series_unit},{v}\n",

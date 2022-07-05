@@ -44,6 +44,7 @@ def heatmap_cluster(chroms,plot_bounds):
 
 def peak_area(time,signal,picked_peaks,save_folder=None):
     fig, ax = plt.subplots()
+    signal = signal - min(signal)
 
     ax.plot(time,signal)
     for x in range(0, len(picked_peaks["Peak_indices"])):
