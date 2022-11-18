@@ -1,7 +1,7 @@
 # from pathlib import Path
 import os
 import matplotlib.pyplot as plt
-from ChromProcess.Loading import conditions_from_csv
+from ChromProcess.Loading import conditions_from_csv, chrom_from_csv
 from ChromProcess.Loading.analysis_info.analysis_from_toml import analysis_from_toml
 from ChromProcess.Utils.signal_processing.deconvolution import deconvolute_peak
 from pathlib import Path
