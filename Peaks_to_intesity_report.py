@@ -5,13 +5,13 @@ from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
 import numpy as np
 from ChromProcess.Loading import chrom_from_csv
-experiment_number = 'CC01'
-experiment_folder = r"C:\Users\thijs\Documents\PhD\Data\CC01"
-peak_collection_directory = f'{experiment_folder}\PeakCollections'
-conditions_file = f'{experiment_folder}\{experiment_number}_conditions.csv'
-analysis_file = f'{experiment_folder}\{experiment_number}_analysis_details.toml'
-data_report_directory = f'{experiment_folder}\DataReports'
-chromatogram_directory = f'{experiment_folder}\ChromatogramCSV'
+experiment_number = 'FRN149'
+experiment_folder = r"/home/thijs/PhD/Data/FRN149"
+peak_collection_directory = f'{experiment_folder}/PeakCollections'
+conditions_file = f'{experiment_folder}/{experiment_number}_conditions.csv'
+analysis_file = f'{experiment_folder}/{experiment_number}_analysis_details.toml'
+data_report_directory = f'{experiment_folder}/DataReports'
+chromatogram_directory = f'{experiment_folder}/ChromatogramCSV'
 os.makedirs(data_report_directory, exist_ok=True)
 
 conditions = conditions_from_csv(conditions_file)
