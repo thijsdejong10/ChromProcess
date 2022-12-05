@@ -1,7 +1,7 @@
 # from pathlib import Path
 import os
 import matplotlib.pyplot as plt
-from ChromProcess.Loading import conditions_from_csv, chrom_from_csv, chrom_from_cdf
+from ChromProcess.Loading import conditions_from_csv, chrom_from_csv
 from ChromProcess.Loading.analysis_info.analysis_from_toml import analysis_from_toml
 from ChromProcess.Utils.signal_processing.deconvolution import deconvolute_peak
 from pathlib import Path
@@ -22,11 +22,14 @@ chromatogram_directory = Path(experiment_folder, f"ChromatogramCSV")
 conditions_file = Path(experiment_folder, f"{experiment_number}_conditions.csv")
 analysis_file = Path(experiment_folder, f"{experiment_number}_analysis_details.toml")
 peak_collection_directory = Path(experiment_folder, f"PeakCollections")
+os.makedirs(peak_collection_directory, exist_ok=True)
+
+peak_figure_folder = Path(experiment_folder, "peak_figures")
+peak_figure_folder.mkdir(exist_ok=True)
 
 conditions = conditions_from_csv(conditions_file)
 analysis = analysis_from_toml(analysis_file)
 
-os.makedirs(peak_collection_directory, exist_ok=True)
 chromatogram_files = os.listdir(chromatogram_directory)
 chromatogram_files.sort()
 chroms = []
@@ -65,12 +68,11 @@ for c in chroms:
         label=c.filename,
     )
 plt.show()
+plt.close()
 
 threshold = analysis.peak_pick_threshold
 if type(threshold) == float:
     threshold = [threshold for r in analysis.regions]
-peak_figure_folder = Path(experiment_folder, "peak_figures")
-peak_figure_folder.mkdir(exist_ok=True)
 for chrom in chroms:
     for reg, thres in zip(analysis.regions, threshold):
         inds = indices_from_boundary(chrom.time, reg[0], reg[1])
