@@ -61,15 +61,15 @@ for c in chroms:
 
     print(c.internal_standard.integral)
 
-# fig, ax = plt.subplots()
-# for c in chroms:
-#     ax.plot(
-#         c.time[analysis.plot_region[0] : analysis.plot_region[1]],
-#         c.signal[analysis.plot_region[0] : analysis.plot_region[1]],
-#         label=c.filename,
-#     )
-# plt.show()
-# plt.close()
+fig, ax = plt.subplots()
+for c in chroms:
+    ax.plot(
+        c.time[analysis.plot_region[0] : analysis.plot_region[1]],
+        c.signal[analysis.plot_region[0] : analysis.plot_region[1]],
+        label=c.filename,
+    )
+plt.show()
+plt.close()
 
 threshold = analysis.peak_pick_threshold
 if type(threshold) == float:
@@ -105,12 +105,12 @@ for chrom in chroms:
             peaks.append(
                 Classes.Peak(retention_time, start, end, indices=[], height=height)
             )
-        # peak_area(
-        #     time,
-        #     signal,
-        #     picked_peaks,
-        #     save_folder=f"{peak_figure_folder}/{reg[0]}_{chrom.filename[:-4]}.png"
-        #     )
+        peak_area(
+            time,
+            signal,
+            picked_peaks,
+            save_folder=f"{peak_figure_folder}/{reg[0]}_{chrom.filename[:-4]}.png"
+            )
         add_peaks_to_chromatogram(peaks, chrom)
     integrate_chromatogram_peaks(chrom, baseline_subtract=True)
 
@@ -119,7 +119,7 @@ for chrom in chroms:
 for reg in analysis.deconvolve_regions:
     region_start = analysis.deconvolve_regions[reg]["region_boundaries"][0]
     indices = indices_from_boundary(
-        chrom.time,
+        chroms[0].time,
         analysis.deconvolve_regions[reg]["region_boundaries"][0],
         analysis.deconvolve_regions[reg]["region_boundaries"][1],
     )
@@ -150,7 +150,7 @@ for reg in analysis.deconvolve_regions:
         chrom.peaks = dict(zip(k, v))
 
     pd.DataFrame(fit_values).to_csv(
-        f"{peak_folder}\\gaussian_fit_{region_start}.csv"
+        f"{peak_folder}/gaussian_fit_{region_start}.csv"
     )
 # for chrom in chroms:
 #    peaks_indices = peak_indices_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")

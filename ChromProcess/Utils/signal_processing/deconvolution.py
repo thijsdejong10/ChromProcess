@@ -689,7 +689,7 @@ def deconvolute_peak(
         ax.plot(time, final_curve + baseline)
         fig.set_size_inches(18.5, 10.5)
         plt.tight_layout()
-        plt.savefig(f"{peak_folder}\\{chromatogram.filename}.png")
+        plt.savefig(f"{peak_folder}/{chromatogram.filename}.png")
         plt.close()
     else:
         plt.close()
