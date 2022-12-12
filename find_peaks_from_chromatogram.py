@@ -109,8 +109,8 @@ for chrom in chroms:
             time,
             signal,
             picked_peaks,
-            save_folder=f"{peak_figure_folder}/{reg[0]}_{chrom.filename[:-4]}.png"
-            )
+            save_folder=f"{peak_figure_folder}/{reg[0]}_{chrom.filename[:-4]}.png",
+        )
         add_peaks_to_chromatogram(peaks, chrom)
     integrate_chromatogram_peaks(chrom, baseline_subtract=True)
 
@@ -149,9 +149,7 @@ for reg in analysis.deconvolve_regions:
             v.insert(insert, peak)
         chrom.peaks = dict(zip(k, v))
 
-    pd.DataFrame(fit_values).to_csv(
-        f"{peak_folder}/gaussian_fit_{region_start}.csv"
-    )
+    pd.DataFrame(fit_values).to_csv(f"{peak_folder}/gaussian_fit_{region_start}.csv")
 # for chrom in chroms:
 #    peaks_indices = peak_indices_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
 #    peak_starts, peak_ends = peak_boundaries_from_file(chrom,f"{peak_collection_directory}\\{chrom.filename}")
