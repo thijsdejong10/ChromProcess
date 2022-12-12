@@ -9,6 +9,7 @@ from Plotting.chromatograms_plotting import peak_area
 
 from ChromProcess.Utils.peak_finding import find_peaks_scipy
 from ChromProcess.Utils import indices_from_boundary, peak_indices_to_times
+from ChromProcess.Utils import valid_deconvolution
 import pandas as pd
 from ChromProcess.Processing import add_peaks_to_chromatogram
 from ChromProcess.Processing import integrate_chromatogram_peaks
@@ -30,6 +31,9 @@ peak_figure_folder.mkdir(exist_ok=True)
 # Load in analysis and conditions file
 conditions = conditions_from_csv(conditions_file)
 analysis = analysis_from_toml(analysis_file)
+if not valid_deconvolution(analysis):
+    print("Invalid deconvolution paramaters")
+    exit()
 # Load in all chromatograms
 chromatogram_files = os.listdir(chromatogram_directory)
 chromatogram_files.sort()
