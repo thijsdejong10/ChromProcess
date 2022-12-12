@@ -617,7 +617,10 @@ def deconvolute_peak(
             #add values for the automatic baseline adaptation
         initial_guess.append(0)
         boundaries[0].append(0)
-        boundaries[1].append(min(signal)+0.00001)
+        if not min(signal) == 0:
+            boundaries[1].append(min(signal))
+        else:
+            boundaries[1].append(min(signal)+0.00001)
 
     else: #this code was used for the old file system
         if "lower_fit_boundaries" in info_dict:
