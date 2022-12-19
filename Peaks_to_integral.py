@@ -3,9 +3,10 @@ from ChromProcess import Classes
 from ChromProcess.Loading import peak_collection_from_csv
 from ChromProcess.Loading import analysis_from_toml
 from ChromProcess.Loading import conditions_from_csv
+from pathlib import Path
 
-experiment_number = 'CC09'
-experiment_folder = f"C:/users/thijs/Documents/PhD/Data/{experiment_number}"
+experiment_number = 'FRN151'
+experiment_folder = f"{Path.home()}/PhD/Data/{experiment_number}"
 peak_collection_directory = f'{experiment_folder}/PeakCollections'
 conditions_file = f'{experiment_folder}/{experiment_number}_conditions.csv'
 analysis_file = f'{experiment_folder}/{experiment_number}_analysis_details.toml'

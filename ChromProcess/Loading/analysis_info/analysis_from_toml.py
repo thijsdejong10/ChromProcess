@@ -78,5 +78,7 @@ def analysis_from_toml(fname):
 
     if "Boundary_window" in peak_picking_options:
         analysis.boundary_window = peak_picking_options["Boundary_window"]
+    if "Adapt_IS" in analysis_dict:
+        analysis.adapt_is = analysis_dict["Adapt_IS"]
 
     return analysis
