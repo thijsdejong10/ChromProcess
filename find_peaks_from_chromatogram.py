@@ -18,7 +18,7 @@ import numpy as np
 from Plotting.chromatograms_plotting import heatmap_cluster
 from ChromProcess import Classes
 
-experiment_number = "FRN151"
+experiment_number = "FRN159_2"
 # Define Folder locations
 experiment_folder = Path(f"{Path.home()}/PhD/Data/{experiment_number}")
 chromatogram_directory = Path(experiment_folder, f"ChromatogramCSV")
@@ -62,10 +62,11 @@ for c in chroms:
         c.signal[analysis.plot_region[0] : analysis.plot_region[1]]
     )
     internal_standard_integral_look_ahead(c, is_start, is_end)
-    if int(c.filename[7:10].lstrip("0")) in analysis.adapt_is["sample_numbers"]:
-        c.internal_standard.height*=analysis.adapt_is["factor"]
+    # if int(c.filename[7:10].lstrip("0")) in analysis.adapt_is["sample_numbers"]:
+    #     c.internal_standard.height*=analysis.adapt_is["factor"]
     c.signal = c.signal / c.internal_standard.height
-    
+    print(c.internal_standard.height)
+
 
 fig, ax = plt.subplots()
 for c in chroms:
@@ -120,26 +121,27 @@ for chrom in chroms:
         add_peaks_to_chromatogram(peaks, chrom)
     integrate_chromatogram_peaks(chrom, baseline_subtract=True)
 
-heatmap_cluster(chroms,analysis.plot_region)
-for reg in analysis.deconvolve_regions:
-    region_start = analysis.deconvolve_regions[reg]["region_boundaries"][0]
+# heatmap_cluster(chroms,analysis.plot_region)
+for reg, region_info in analysis.deconvolve_regions.items():
+    region_start = region_info["region_boundaries"][0]
     indices = indices_from_boundary(
         chroms[0].time,
-        analysis.deconvolve_regions[reg]["region_boundaries"][0],
-        analysis.deconvolve_regions[reg]["region_boundaries"][1],
+        region_info["region_boundaries"][0],
+        region_info["region_boundaries"][1],
     )
-    peak_folder = f"{experiment_folder}/deconvolved_peaks/{region_start}"
-    os.makedirs(peak_folder, exist_ok=True )
+    peak_folder = Path(f"{experiment_folder}/deconvolved_peaks/{region_start}")
+    peak_folder.makedirs(exist_ok=True)
     fit_values = np.array(["mse"])
-    for n in range(1, analysis.deconvolve_regions[reg]["number_of_peaks"] + 1):
+    for n in range(1, region_info["number_of_peaks"] + 1):
         fit_values = np.hstack((fit_values, [f"amp{n}", f"centre{n}", f"sigma{n}"]))
     fit_values = np.hstack((fit_values, "baseline"))
+
     for chrom in chroms:
         popt, pcov, mse, peaks = deconvolute_peak(
             chrom,
             peak_folder,
             indices,
-            analysis.deconvolve_regions[reg],
+            region_info,
             plotting=True,
         )
         fit_values = np.vstack((fit_values, np.array([mse, *popt])))
